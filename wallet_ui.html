@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockchain Wallet</title>
+  <style>
+    /* Basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #eee;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .container {
+      background: #1e1e1e;
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+    }
+
+    body.dark-mode h1 {
+      color: #4da3ff;
+    }
+
+    .balances {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+
+    .balances div {
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background-color: #565e64;
+    }
+
+    body.dark-mode .btn-primary {
+      background-color: #4da3ff;
+    }
+
+    body.dark-mode .btn-primary:hover {
+      background-color: #2872b8;
+    }
+
+    body.dark-mode .btn-secondary {
+      background-color: #444;
+    }
+
+    body.dark-mode .btn-secondary:hover {
+      background-color: #555;
+    }
+
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .modal-content button {
+      margin-top: 10px;
+    }
+
+    .node-list {
+      margin-top: 10px;
+      text-align: left;
+      max-height: 100px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .node-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .node-item span {
+      flex-grow: 1;
+    }
+
+    .node-item button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .node-item button:hover {
+      background-color: #b02a37;
+    }
+
+
+    body.dark-mode .modal-content {
+    background: #1e1e1e;
+    color: #eee;
+    border: 1px solid #444;
+  }
+
+  body.dark-mode .modal-content input {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+  }
+
+  body.dark-mode .node-list {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+  }
+
+  body.dark-mode .node-item button {
+    background-color: #c0392b;
+    color: #fff;
+  }
+
+  body.dark-mode .node-item button:hover {
+    background-color: #a93226;
+  }
+
+    .blockchain-viewer {
+      margin-top: 30px;
+    }
+
+    .blockchain-container {
+      max-height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+
+    body.dark-mode .blockchain-container {
+      background: #232323;
+      border-color: #444;
+    }
+
+    .block {
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      word-wrap: break-word; /* Prevent long addresses from spilling over */
+    }
+
+    body.dark-mode .block {
+      background-color: #2a2a2a;
+      border-color: #444;
+    }
+
+    .block-header {
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+    }
+
+    body.dark-mode .block-header {
+      color: #bbb;
+    }
+
+    .transactions {
+      margin-top: 10px;
+      padding-left: 10px;
+      display: none;
+    }
+
+    .transaction {
+      margin: 5px 0;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    body.dark-mode .transaction {
+      background-color: #2a2a2a;
+      border-color: #444;
+    }
+
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    body.dark-mode .dark-mode-toggle {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Blockchain Wallet</h1>
+    <div class="balances">
+      <div>
+        <h3>Available</h3>
+        <p id="available-balance">0</p>
+      </div>
+      <div>
+        <h3>Pending</h3>
+        <p id="pending-balance">0</p>
+      </div>
+      <div>
+        <h3>Total</h3>
+        <p id="total-balance">0</p>
+      </div>
+    </div>
+    <button class="btn-primary" id="send-button">Send</button>
+    <button class="btn-secondary" id="update-balance-button">Update Balance</button>
+    <button class="btn-secondary" id="register-node-button">Register Nodes</button>
+
+
+
+     <!-- Modal for Sending -->
+  <div class="modal" id="send-modal">
+    <div class="modal-content">
+      <h2>Send Funds</h2>
+      <input type="text" id="recipient-address" placeholder="Recipient Address">
+      <input type="number" id="send-amount" placeholder="Amount" min="0.01" step="0.01">
+      <button class="btn-primary" id="send-confirm-button">Send</button>
+      <button class="btn-secondary" id="send-cancel-button">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Modal for Node Registration -->
+  <div class="modal" id="register-modal">
+    <div class="modal-content">
+      <h2>Register Nodes</h2>
+      <input type="text" id="node-address" placeholder="Node Address (e.g., 127.0.0.1:5000)">
+      <button class="btn-primary" id="add-node-button">Add Node</button>
+      <div class="node-list" id="node-list"></div>
+      <button class="btn-primary" id="register-confirm-button">Register All</button>
+      <button class="btn-secondary" id="register-cancel-button">Cancel</button>
+    </div>
+  </div>
+
+
+
+    <!-- Blockchain Viewer -->
+    <div class="blockchain-viewer">
+      <h2>Blockchain</h2>
+      <div id="blockchain-container" class="blockchain-container">
+        <p>No blocks yet. Update balance to load the blockchain.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification" id="notification"></div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uuid/dist/umd/uuidv4.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/sjcl/sjcl.js"></script> -->
+  
+  <script src="https://cdn.jsdelivr.net/npm/sjcl@1.0.8/sjcl.min.js"></script>
+  
+
+  <script src="Wallet.js"></script>
+
+  <script>
+  
+    const availableBalanceElem = document.getElementById('available-balance');
+    const pendingBalanceElem = document.getElementById('pending-balance');
+    const totalBalanceElem = document.getElementById('total-balance');
+    const blockchainContainer = document.getElementById('blockchain-container');
+    const notificationElem = document.getElementById('notification');
+
+    const sendButton = document.getElementById('send-button');
+    const updateBalanceButton = document.getElementById('update-balance-button');
+    const registerNodeButton = document.getElementById('register-node-button');
+    const sendModal = document.getElementById('send-modal');
+    const recipientAddressInput = document.getElementById('recipient-address');
+    const sendAmountInput = document.getElementById('send-amount');
+    const sendConfirmButton = document.getElementById('send-confirm-button');
+    const sendCancelButton = document.getElementById('send-cancel-button');
+
+    
+    const registerButton = document.getElementById('register-node-button');
+    const registerModal = document.getElementById('register-modal');
+    const addNodeButton = document.getElementById('add-node-button');
+    const registerConfirmButton = document.getElementById('register-confirm-button');
+    const registerCancelButton = document.getElementById('register-cancel-button');
+    const nodeList = document.getElementById('node-list');
+    const nodeAddressInput = document.getElementById('node-address');
+
+
+    const initializeWallet = async () => {
+
+    const isDarkMode = localStorage.getItem("darkMode") === "true";
+    document.body.classList.toggle("dark-mode", isDarkMode);
+
+
+    const username = localStorage.getItem("username");
+    const password = localStorage.getItem("password");
+
+
+    console.log("username = " + username)
+    console.log("password = " + password)
+
+    if (username && password) {
+      try {
+        await loginOffline(username, password, true);
+        document.getElementById('available-balance').textContent = wallet.available.toFixed(2);
+        document.getElementById('pending-balance').textContent = wallet.pending.toFixed(2);
+        document.getElementById('total-balance').textContent = wallet.total.toFixed(2);
+        console.log(`Wallet initialized for user: ${username}`);
+      } catch (error) {
+        console.error("Error initializing wallet:", error);
+      }
+    } else {
+      console.error("No login data found in localStorage.");
+      window.location.href = "login_register.html"; // Redirect back to login page if no login data
+    }
+  };
+
+  // Initialize the wallet on page load
+  window.onload = initializeWallet;
+
+
+    let nodes = [];
+
+    const showNotification = (message, type = 'success') => {
+      notificationElem.textContent = message;
+      notificationElem.className = `notification ${type}`;
+      notificationElem.style.display = 'block';
+      setTimeout(() => {
+        notificationElem.style.display = 'none';
+      }, 3000);
+    };
+
+
+
+    sendButton.onclick = () => {
+      sendModal.style.display = 'flex';
+    };
+
+    sendCancelButton.onclick = () => {
+      sendModal.style.display = 'none';
+    };
+
+    sendConfirmButton.onclick = async () => {
+      const recipient = recipientAddressInput.value.trim();
+      const amount = parseFloat(sendAmountInput.value);
+
+      if (!recipient || isNaN(amount) || amount <= 0) {
+        showNotification('Invalid recipient or amount.', 'error');
+        return;
+      }
+
+      try {
+        await wallet.send(recipient, amount);
+        showNotification('Transaction sent successfully!');
+        sendModal.style.display = 'none';
+        recipientAddressInput.value = '';
+        sendAmountInput.value = '';
+      } catch (error) {
+        showNotification('Transaction failed: ' + error.message, 'error');
+      }
+    };
+
+    updateBalanceButton.onclick = async () => {
+      try {
+        await wallet.updateBalance();
+        availableBalanceElem.textContent = wallet.available.toFixed(2);
+        pendingBalanceElem.textContent = wallet.pending.toFixed(2);
+        totalBalanceElem.textContent = wallet.total.toFixed(2);
+        showNotification('Balances updated!');
+      } catch (error) {
+        showNotification('Failed to update balances: ' + error.message, 'error');
+      }
+    };
+
+    registerButton.onclick = () => {
+      registerModal.style.display = 'flex';
+    };
+
+    registerCancelButton.onclick = () => {
+      registerModal.style.display = 'none';
+      nodes = [];
+      nodeList.innerHTML = '';
+      nodeAddressInput.value = '';
+    };
+
+    addNodeButton.onclick = () => {
+      const address = nodeAddressInput.value.trim();
+      if (address) {
+        nodes.push(address);
+        const nodeItem = document.createElement('div');
+        nodeItem.className = 'node-item';
+        nodeItem.innerHTML = `<span>${address}</span><button onclick="removeNode('${address}')">Remove</button>`;
+        nodeList.appendChild(nodeItem);
+        nodeAddressInput.value = '';
+      }
+    };
+
+    registerConfirmButton.onclick = async () => {
+      try {
+        await wallet.registerNode(nodes);
+        showNotification('Nodes registered successfully!');
+        registerModal.style.display = 'none';
+        nodes = [];
+        nodeList.innerHTML = '';
+      } catch (error) {
+        showNotification('Failed to register nodes: ' + error.message, 'error');
+      }
+    };
+
+    window.removeNode = (address) => {
+      nodes = nodes.filter(node => node !== address);
+      const nodeItems = document.querySelectorAll('.node-item');
+      nodeItems.forEach(item => {
+        if (item.querySelector('span').textContent === address) {
+          item.remove();
+        }
+      });
+    };
+
+
+    const renderBlockchain = (blockchain) => {
+      blockchainContainer.innerHTML = '';
+      if (blockchain.length === 0) {
+        blockchainContainer.innerHTML = '<p>No blocks in the blockchain.</p>';
+        return;
+      }
+      blockchain.forEach((block, blockIndex) => {
+        const blockElem = document.createElement('div');
+        blockElem.className = 'block';
+
+        // Block data
+        blockElem.innerHTML = `
+          <div class="block-header" onclick="toggleTransactions(${blockIndex})">Block ${block.index}</div>
+          <div class="block-data"><strong>Timestamp:</strong> ${new Date(block.timestamp * 1000).toLocaleString()}</div>
+          <div class="block-data"><strong>Previous Hash:</strong> ${block.previous_hash}</div>
+          <div class="block-data"><strong>Transactions:</strong> ${block.transactions.length} transaction(s)</div>
+          <div class="transactions" id="transactions-${blockIndex}">
+            ${block.transactions.map(tx => `
+              <div class="transaction">
+                <p><strong>Transaction ID:</strong> ${tx.transaction_id}</p>
+                <p><strong>Sender:</strong> ${tx.sender}</p>
+                <p><strong>Recipient:</strong> ${tx.recipient}</p>
+                <p><strong>Amount:</strong> ${tx.amount}</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        blockchainContainer.appendChild(blockElem);
+      });
+    };
+
+    const toggleTransactions = (blockIndex) => {
+      const transactionElem = document.getElementById(`transactions-${blockIndex}`);
+      transactionElem.style.display = transactionElem.style.display === 'block' ? 'none' : 'block';
+    };
+
+    document.getElementById('update-balance-button').onclick = async () => {
+      try {
+        await wallet.updateBalance();
+        availableBalanceElem.textContent = wallet.available.toFixed(2);
+        pendingBalanceElem.textContent = wallet.pending.toFixed(2);
+        totalBalanceElem.textContent = wallet.total.toFixed(2);
+
+        // Fetch blockchain data
+        const blockchain = await wallet.getBlockchain(); // Ensure Wallet.js has a `getBlockchain()` method.
+        renderBlockchain(blockchain);
+
+        showNotification('Balances and blockchain updated!');
+      } catch (error) {
+        showNotification('Failed to update balances or blockchain: ' + error.message, 'error');
+      }
+    };
+  </script>
+
+<script>
+  // Apply dark mode if enabled in localStorage
+  const applyDarkMode = () => {
+    const isDarkMode = localStorage.getItem("darkMode") === "true";
+    document.body.classList.toggle("dark-mode", isDarkMode);
+  };
+
+  // Toggle dark mode and save preference to localStorage
+  const toggleDarkMode = () => {
+    const isDarkMode = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", isDarkMode);
+  };
+
+  // // Apply dark mode on page load
+  // window.onload = applyDarkMode;
+</script>
+
+
+
+</body>
+</html>
